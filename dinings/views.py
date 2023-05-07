@@ -9,16 +9,14 @@ import random
 import requests, json, pprint
 import os
 from team_03 import settings
-from utils.location import get_address
+from utils.location import get_address, get_url
 # Create your views here.
 
 def index(request):
-    GOOGLE_KEY = os.getenv('GOOGLE_KEY')
-    url = f'https://www.googleapis.com/geolocation/v1/geolocate?key={GOOGLE_KEY}'
     data = {
         'considerIp': True,
     }
-
+    url = get_url()
     result = requests.post(url, data).text
     result = eval(result)
     full_address = get_address(str(result['location']['lat']), str(result['location']['lng']))

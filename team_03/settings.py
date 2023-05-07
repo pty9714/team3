@@ -30,12 +30,13 @@ load_dotenv()
 """
 환경 변수에서 key가 SECRET_KEY인 value 불러오기
 """
-SECRET_KEY = '(ti#+!y)ix#pa2j4t4w$^m6))*ov+15$yw6+=)dy9&#rw#$2u1'
+SECRET_KEY = 'django-insecure-(ti#+!y)ix#pa2j4t4w$^m6))*ov+15$yw6+=)dy9&#rw#$2u1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
     'port-0-team3-xiy3e2blhdtmsbp.sel4.cloudtype.app',
+    '127.0.0.1',
     ]
 
 
