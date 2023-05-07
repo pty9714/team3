@@ -35,9 +35,7 @@ SECRET_KEY = '(ti#+!y)ix#pa2j4t4w$^m6))*ov+15$yw6+=)dy9&#rw#$2u1'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'port-0-team-03-1lfmx2blhdo8dn5.sel4.cloudtype.app',
-    'port-0-team-03-xiy3e2blhdsgslz.sel4.cloudtype.app',
-    '127.0.0.1'
+    'port-0-team3-xiy3e2blhdtmsbp.sel4.cloudtype.app',
     ]
 
 
