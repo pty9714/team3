@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
-from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,15 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 .env 파일의 key-value를 프로그램 환경 변수에 등록
 """
-load_dotenv()
 
 
 """
 환경 변수에서 key가 SECRET_KEY인 value 불러오기
 """
-SECRET_KEY = os.getenv('SECRET_KEY')
-KAKAO_KEY = os.getenv('KAKAO_KEY')
-GOOGLE_KEY = os.getenv('GOOGLE_KEY')
+SECRET_KEY = '(ti#+!y)ix#pa2j4t4w$^m6))*ov+15$yw6+=)dy9&#rw#$2u1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
