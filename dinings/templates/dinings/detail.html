@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load customs %}
+{% block content %}
+<div class="container ">
+  <div class="row">
+    
+      <!-- 왼쪽 사이드바 < 지도 > -->
+      <div class="col-3">
+        <div class='card'>
+          {% comment %} <div>지도</div> {% endcomment %}
+          <div id="map" style="width:100%; height: 300px;"></div>
+          {% if request.user.is_superuser %}
+          <div class="d-flex">
+            <a style="width:70px" class="btn btn-info" href="{% url 'dinings:dining_update' dining.pk  %}">수정</a>   
+            <form action="{% url 'dinings:dining_delete' dining.pk %}" method="POST">
+              {% csrf_token %}
+              <input type="submit" class="btn btn-danger" value="글 삭제">
+            </form>
+          </div>
+          {% endif %} 
+        </div>
+      </div>
+
+      <!-- 오른쪽 상세 페이지 -->
+      <div class="col-9">
+        <!-- 1번 상자 -->
+        <div class="card container mb-3">
+          <div class="row mt-2 p-0 m-0">
+            <div class="col-6 col-md-6 p-0 m-0">
+              {% if dining.image1 %}
+              <img src="{{ dining.image1.url }}" alt="..." class="img-fluid " style="min-width:14rem; width:100%; min-height:14rem; height:14rem;"  >
+              {% else %}
+              <img src="{% static 'img/blank_img.png' %}" alt="..." class="img-fluid " style="min-width:14rem; width:100%; min-height:14rem; height:14rem;">
+              {% endif %}
+            </div>
+            <div class="col col-md-6 p-0 m-0">
+              <div class="row">
+                <div class="col-6 pe-0">
+                  {% if dining.image2 %}
+                  <img src="{{ dining.image2.url }}" alt="..." class="img-fluid " style="min-width:7rem; width:100%; min-height:7rem; height:7rem;" >
+                  {% else %}
+                  <img src="{% static 'img/blank_img.png' %}" alt="..." class="img-fluid " style="min-width:7rem; width:100%; min-height:7rem; height:7rem;">
+                  {% endif %}
+                </div>
+                <div class="col-6 ps-0">
+                  {% if dining.image3 %}
+                  <img src="{{ dining.image3.url }}" alt="..." class="img-fluid " style="min-width:7rem; width:100%; min-height:7rem; height:7rem;">
+                  {% else %}
+                  <img src="{% static 'img/blank_img.png' %}" alt="..." class="img-fluid " style="min-width:7rem; width:100%; min-height:7rem; height:7rem;">
+                  {% endif %}
+                </div>
+                <div class="col-6 pe-0">
+                  {% if dining.image4 %}
+                  <img src="{{ dining.image4.url }}" alt="..." class="img-fluid " style="min-width:7rem; width:100%; min-height:7rem; height:7rem;" >
+                  {% else %}
+                  <img src="{% static 'img/blank_img.png' %}" alt="..." class="img-fluid " style="min-width:7rem; width:100%; min-height:7rem; height:7rem;">
+                  {% endif %}
+                </div>
+                <div class="col-6 ps-0">
+                  {% if dining.image5 %}
+                  <img src="{{ dining.image5.url }}" alt="..." class="img-fluid " style="min-width:7rem; width:100%; min-height:7rem; height:7rem;">
+                  {% else %}
+                  <img src="{% static 'img/blank_img.png' %}" alt="..." class="img-fluid " style="min-width:7rem; width:100%; min-height:7rem; height:7rem;">
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="container mt-3">
+            <h1>{{ dining.title }}</h1>
+            <div class="d-flex gap-2">
+              <b><p>{{ reviews.half_star_rating }}점</p></b>
+              <p class="sm_text">{{ reviews.all|length }}명의 평가</p>
+              <b><p class="m_text">{{ avg }}점</p></b>
+              <!-- 임시로 넣어두었음 , 총 별점 나타내야 함-->
+              {% if reviews %}
+              <p>{{ reviews.first.star_rating }}</p>
+              {% endif %}
+            
+            </div>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between mb-3">
+            <div class="d-flex gap-2">
+              {% comment %} <form action="{% url 'dinings:likes' dining.pk %}" method="POST"> {% endcomment %}
+              <form id="like-form" data-dinings-id="{{ dining.pk }}">
+                {% csrf_token %}
+                <button type="submit" class="m_text rounded-pill btn btn-outline-dark">
+                  {% if request.user in dining.like_users.all %}
+                  <i class="bi bi-heart-fill"></i>
+                  {% else %}
+                  <i class="bi bi-heart"></i>
+                  {% endif %}
+                  좋아요<span id="like_count">({{ dining.like_users.all|length }})</span></button>
+              </form>
+
+              <button type="button" class="rounded-pill btn btn-outline-dark m_text "><span class="material-symbols-rounded mx-1">
+              open_in_new
+              </span>공유</button>
+              
+            </div>
+            <button type="button" class="m_text rounded-pill btn btn-outline-dark "><span class="material-symbols-rounded mx-1">
+              edit
+              </span>평가하기</button>
+
+          </div>
+        </div>
+
+        <!-- 2번 상자 -->
+        <div class="container card mb-3 py-2 ">
+          <div class="d-flex gap-2">
+            <span class="icon_size material-symbols-rounded">
+              location_on
+              </span>         
+            <p>{{dining.address_address}}</p>
+            <p>{{dining.address_detail}}</p>
+            <p>{{dining.address_extra}}</p>   
+          </div>
+          <div class="d-flex gap-2">
+            <span class="icon_size material-symbols-rounded">
+              book
+              </span>
+            <p>{{ dining.phone_number }}</p>
+          </div>
+          <div class="d-flex gap-2">
+            <span class="icon_size material-symbols-rounded">
+              sell
+              </span>
+            {% for tag in dining.tags.all %}
+              <a href="#" class="search-tag" data-tag="{{ tag.name }}">{{ tag.name }}</a>
+            {% endfor %}
+          </div>
+          
+          <!-- 모달 넣기 -->
+          <div class="d-flex gap-2">
+            <span class="icon_size material-symbols-rounded">
+              chat
+              </span>
+            <a href="">폐업신고</a>
+            <a href="">정보수정 제안</a>   
+          </div>            
+          <br>
+
+        </div>
+
+        <!-- 3번 상자 -->
+        <div class="container card mb-3 pt-3">
+          <h2>영업시간</h2>
+          <div class="d-flex justify-content-between">
+            <!-- 요일 추가 -->
+            <p>매일</p>
+            <!-- 시간 -->
+            <p>{{ dining.opening_hours }}</p>
+          </div>
+          <hr>
+          <h2>메뉴정보</h2>
+          <div class="p-2">
+            {% for menu in menus %}
+            {% if request.user.is_superuser %}
+            <form action="{% url 'dinings:menu_delete' dining.pk menu.pk %}" methos="POST">
+              {% csrf_token %}
+              <div class='d-flex justify-content-between'>
+                <p>{{menu.name}}</p>
+                <div class="d-flex">
+                  <p>{{menu.price}}</p>
+                  <input type="submit" value="X" class="btn btn-danger rounded-circle btn-sm" style="height:2rem">
+                </div>
+              </div>
+            </form>
+            {% endif %}
+            {% endfor %}
+            {% if request.user.is_superuser %}
+              <button class="btn btn-primary menu-add">추가</button>
+            {% endif %}
+            <div class="menu-form" style="display:none;">
+              <form id='menu-form' data-dining-id="{{dining.pk}}">
+                {% csrf_token %}
+                {{ menu_form.as_p }}
+                <input type="submit" value="입력">
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- 리뷰 -->
+        <div class="container card mb-3">
+          <div class="d-flex justify-content-between">
+            <h3 class="my-auto mt-3">{{ reviews.all|length }}건의 방문자 평가</h3>
+          </div>
+          <hr>
+          <div class="">
+            <p>{{ avg }}점</p>
+            <div class=" mt-5" style="font-size:12px">
+              <div class="d-flex">
+                <p class="col-6">매우만족({{satisfaction|reportkey:"매우만족"}})</p>
+                <div class="progress col-6" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" style="width: 0%" id="prog1"></div>
+                </div>
+              </div>
+              <div class="d-flex">
+                <p class="col-6">만족({{satisfaction|reportkey:"만족"}})</p>
+                <div class="progress col-6" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" style="width: 0%" id="prog2"></div>
+                </div>
+              </div>
+              <div class="d-flex">
+                <p class="col-6">보통({{satisfaction|reportkey:"보통"}})</p>
+                <div class="progress col-6" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" style="width: 0%" id="prog3"></div>
+                </div>
+              </div>
+              <div class="d-flex">
+                <p class="col-6">불만({{satisfaction|reportkey:"불만"}})</p>
+                <div class="progress col-6" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" style="width: 0%" id="prog4"></div>
+                </div>
+              </div>
+              <div class="d-flex">
+                <p class="col-6">매우불만({{satisfaction|reportkey:"매우불만"}})</p>
+                <div class="progress col-6" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" style="width: 0%" id="prog5"></div>
+                </div>
+              </div>
+            </div> 
+          </div>
+          <hr>
+
+          {% for review in reviews %}
+            <div class="container card my-2 ">
+              <div class="d-flex p-2">
+                <!-- 프로필 사진 추가-->
+                {% if review.user.profile_image %}
+                  <img class="p-1 rounded-circle" src="{{ review.user.profile_image.url }}" alt="profile_image">
+                {% else %}
+                  <img class="p-1 rounded-circle" src="{% static 'img/blank-profile-image.png' %}" class="img-fluid" style="width: 70px; height: 70px;" alt="blank-profile-image">
+                {% endif %}
+                <div class="container mt-2">
+                  <div class="d-flex justify-content-between gap-2">
+                    <div class="d-flex gap-2">
+                      <a href="{% url 'accounts:profile' review.user.username %}"><p>{{ review.user.username }}</p></a>
+                      <p>작성개수 {{ review.user.review_set.all|length }} , 공감개수 {{ review.like_users.all|length }}</p>
+
+                    </div>
+                    {% if request.user == review.user %}
+                      <form action="{% url 'dinings:review_delete' dining.pk review.pk %}" method="POST">
+                        {% csrf_token %}
+                        <input class="btn btn-danger rounded-circle " type="submit" value="X">
+                      </form>
+                    {% endif %}
+                  </div>
+                  <div class="d-flex gap-2">
+                    <p>{{ review.star_rating }} </p>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex gap-1">
+                <p>맛 {{ review.star_rating_taste }}</p>
+                <p>가격 {{ review.star_rating_price }}</p>
+                <p>서비스 {{ review.star_rating_kind }}</p>
+              </div>
+              <!-- 댓글은 wrap 사용-->
+              <div class="text-wrap my-3">
+                {{ review.content }}
+              </div>
+              <div class="d-flex gap-1 my-2" style="height:4rem" >
+                {% if review.image1 %}
+                <img src="{{ review.image1.url }}" alt="#" style=" width:20%; height:100%;">
+                {% endif %}
+                {% if review.image2 %}
+                <img src="{{ review.image2.url }}" alt="#" style=" width:20%; height:100%;">
+                {% endif %}
+                {% if review.image3 %}
+                <img src="{{ review.image3.url }}" alt="#" style=" width:20%; height:100%;">
+                {% endif %}
+                {% if review.image4 %}
+                <img src="{{ review.image4.url }}" alt="#" style=" width:20%; height:100%;">
+                {% endif %}
+                {% if review.image5 %}
+                <img src="{{ review.image5.url }}" alt="#" style=" width:20%; height:100%;">
+                {% endif %}
+              </div>
+              <div class="d-flex sm_tag">
+                <div class=" me-1">
+                  {% for tag in review.purpose_tags.all %}
+                    {% if forloop.counter <= 2 %}
+                    <p class="border rounded-pill px-2 d-inline-block"style="background-color: rgb(227, 227, 227);">{{ tag.tag }}</p>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                <div class=" me-1">
+                  {% for tag in review.atmosphere_tags.all %}
+                    {% if forloop.counter <= 2 %}
+                    <p class="border rounded-pill px-2 d-inline-block"style="background-color: rgb(227, 227, 227);">{{ tag.tag }}</p>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                <div class=" me-1">
+                  {% for tag in review.facility_tags.all %}
+                    {% if forloop.counter <= 2 %}
+                    <p class="border rounded-pill px-2 d-inline-block"style="background-color: rgb(227, 227, 227);">{{ tag.tag }}</p>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              <form action="{% url 'dinings:review_like' dining.pk review.pk %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-success py-0 my-3 d-block">공감 <span>({{ review.like_users.all|length }})</span></button>
+              </form>
+            </div>
+          {% empty %}
+            <p>아직 리뷰가 없습니다.</p>
+          {% endfor %}
+          <a class="btn btn-primary my-3" href="{% url 'dinings:review_create' dining.pk %}">리뷰작성</a>
+
+        </div>
+      </div>
+  </div>
+</div>
+
+{% endblock content %}
+{% block script %}
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAeo2OKCeAbkCAFFoXyrCP4rJEE1wMBs1w&callback=initMap"></script>
+<script>
+  function initMap() {
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 16
+    });
+  
+    // 위치를 가져오기
+    var geocoder = new google.maps.Geocoder();
+    var address = "{{dining.address_address}}"; // 주소
+    geocoder.geocode({ 'address': address }, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        var latitude = results[0].geometry.location.lat();
+        var longitude = results[0].geometry.location.lng();
+  
+        // 위치를 지도의 center 옵션으로 설정하기
+        map.setCenter({lat: latitude, lng: longitude});
+  
+        // 마커 생성하기
+        var marker = new google.maps.Marker({
+          position: {lat: latitude, lng: longitude},
+          map: map
+        });
+      } else {
+        alert("Geocode was not successful for the following reason: " + status);
+      }
+    });
+  }
+</script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="{% static 'js/detail.js' %}"></script>
+  <script>
+    const prog1 = document.querySelector('#prog1')
+    const prog2 = document.querySelector('#prog2')
+    const prog3 = document.querySelector('#prog3')
+    const prog4 = document.querySelector('#prog4')
+    const prog5 = document.querySelector('#prog5')
+    console.log({{reviews.all|length}})
+    
+    const prog1Ratio = {{satisfaction|reportkey:"매우만족"}} / {{reviews.all|length}} * 100
+    const prog2Ratio = {{satisfaction|reportkey:"만족"}} / {{reviews.all|length}} * 100
+    const prog3Ratio = {{satisfaction|reportkey:"보통"}} / {{reviews.all|length}} * 100
+    const prog4Ratio = {{satisfaction|reportkey:"불만"}} / {{reviews.all|length}} * 100
+    const prog5Ratio = {{satisfaction|reportkey:"매우불만"}} / {{reviews.all|length}} * 100
+    console.log(prog2Ratio, prog3Ratio, prog4Ratio)
+
+    prog1.setAttribute('style', `width: ${prog1Ratio}%;`)
+    prog2.setAttribute('style', `width: ${prog2Ratio}%;`)
+    prog3.setAttribute('style', `width: ${prog3Ratio}%;`)
+    prog4.setAttribute('style', `width: ${prog4Ratio}%;`)
+    prog5.setAttribute('style', `width: ${prog5Ratio}%;`)
+  </script>
+{% endblock script %}
